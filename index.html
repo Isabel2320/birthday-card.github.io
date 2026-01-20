@@ -1,122 +1,341 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Happy Birthday</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-    body {
-        margin: 0;
-        font-family: "Helvetica Neue", Arial, sans-serif;
-        background: linear-gradient(180deg, #f6eee8, #f9e9ef);
-        overflow-x: hidden;
-        color: #4a4a4a;
-    }
-    .page {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        padding: 24px;
-        box-sizing: border-box;
-    }
-    .cake {
-        width: 120px;
-        margin-bottom: 30px;
-        animation: fadeScale 1.2s ease forwards;
-    }
-    .balloon {
-        position: absolute;
-        width: 90px;
-        opacity: 0.35;
-        animation: float 8s ease-in-out infinite;
-    }
-    .balloon.b1 { left: 10%; top: 80%; animation-delay: 0s; }
-    .balloon.b2 { left: 70%; top: 90%; animation-delay: 2s; }
-    .balloon.b3 { left: 40%; top: 85%; animation-delay: 4s; }
+  :root{
+    --bg1:#f7efe6;     /* 米色 */
+    --bg2:#f9e3ea;     /* 浅粉 */
+    --text:#3f3f3f;
+    --muted:#6a6a6a;
+    --accent:#e8a9ba;  /* 粉银感点缀 */
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, "PingFang SC","Hiragino Sans GB","Microsoft YaHei", sans-serif;
+    color:var(--text);
+    background: radial-gradient(1200px 800px at 30% 10%, #ffffff 0%, transparent 60%),
+                linear-gradient(180deg, var(--bg1), var(--bg2));
+    overflow:hidden;
+  }
 
-    @keyframes float {
-        0% { transform: translateY(0); }
-        50% { transform: translateY(-120px); }
-        100% { transform: translateY(0); }
-    }
-    @keyframes fadeScale {
-        from { opacity: 0; transform: scale(0.9); }
-        to { opacity: 1; transform: scale(1); }
-    }
+  .stage{
+    position:relative;
+    min-height:100vh;
+    padding:28px 18px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+  }
 
-    .photo {
-        width: 240px;
-        border-radius: 18px;
-        margin-bottom: 24px;
-        opacity: 0;
-        animation: fadeIn 1s ease forwards;
-        animation-delay: 0.5s;
-    }
+  /* 3D气泡气球容器 */
+  .balloons{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
+  .balloon{
+    position:absolute;
+    width:120px;
+    filter: drop-shadow(0 14px 18px rgba(0,0,0,.10));
+    opacity:.95;
+    animation: floatY 9.5s ease-in-out infinite;
+  }
+  .balloon.b1{left:6%;  top:68%; transform:rotate(-6deg); animation-delay:0s;}
+  .balloon.b2{left:66%; top:74%; transform:rotate(7deg);  animation-delay:1.8s; width:132px;}
+  .balloon.b3{left:36%; top:78%; transform:rotate(-2deg); animation-delay:3.2s; width:108px; opacity:.9;}
 
-    .text {
-        max-width: 320px;
-        text-align: center;
-        font-size: 16px;
-        line-height: 1.7;
-    }
+  @keyframes floatY{
+    0%{ transform: translateY(0) rotate(var(--rot,0deg)); }
+    50%{ transform: translateY(-140px) rotate(var(--rot,0deg)); }
+    100%{ transform: translateY(0) rotate(var(--rot,0deg)); }
+  }
 
-    .line {
-        opacity: 0;
-        animation: fadeIn 0.8s ease forwards;
-    }
+  /* 卡片主体 */
+  .card{
+    width:min(420px, 92vw);
+    border-radius:22px;
+    background: rgba(255,255,255,.55);
+    border:1px solid rgba(255,255,255,.55);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 18px 40px rgba(0,0,0,.08);
+    padding:18px 18px 16px;
+    position:relative;
+  }
 
-    @keyframes fadeIn {
-        to { opacity: 1; }
-    }
+  .topRow{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    margin-top:2px;
+  }
 
-    .signature {
-        margin-top: 18px;
-        font-style: italic;
-        opacity: 0;
-        animation: fadeIn 1s ease forwards;
-        animation-delay: 3.5s;
-    }
+  .cakeWrap{
+    width:86px;
+    height:86px;
+    display:grid;
+    place-items:center;
+    animation: popIn 900ms ease forwards;
+    opacity:0;
+  }
+  @keyframes popIn{
+    from{opacity:0; transform:scale(.92)}
+    to{opacity:1; transform:scale(1)}
+  }
+
+  .tapHint{
+    text-align:center;
+    font-size:12px;
+    letter-spacing:.2px;
+    color:rgba(63,63,63,.65);
+    margin-top:8px;
+    user-select:none;
+  }
+  .tapHint span{
+    padding:6px 10px;
+    border-radius:999px;
+    background: rgba(255,255,255,.55);
+    border:1px solid rgba(255,255,255,.55);
+  }
+
+  /* 第二屏内容 */
+  .content{
+    display:none;
+    gap:14px;
+  }
+  .content.show{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    animation: fadeUp 650ms ease forwards;
+  }
+  @keyframes fadeUp{
+    from{opacity:0; transform:translateY(10px)}
+    to{opacity:1; transform:translateY(0)}
+  }
+
+  .photo{
+    width:min(260px, 70vw);
+    border-radius:18px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.75);
+    box-shadow: 0 14px 28px rgba(0,0,0,.08);
+  }
+  .photo img{
+    display:block;
+    width:100%;
+    height:auto;
+  }
+
+  .text{
+    width:100%;
+    text-align:center;
+    line-height:1.7;
+    padding:0 6px;
+  }
+  .en{font-size:16px; color:var(--text); min-height:3.6em;}
+  .zh{font-size:15px; color:var(--muted); min-height:4.8em; margin-top:10px;}
+  .sig{
+    margin-top:10px;
+    font-size:13px;
+    color:rgba(63,63,63,.78);
+  }
+  .sig strong{color:var(--text)}
+  .divider{
+    width:68px;
+    height:2px;
+    border-radius:999px;
+    background: linear-gradient(90deg, transparent, rgba(232,169,186,.9), transparent);
+    margin:10px auto 0;
+  }
+
+  /* 点击区域 */
+  .clickZone{
+    cursor:pointer;
+  }
 </style>
 </head>
 
 <body>
+  <!-- 3D气泡气球（SVG生成，不依赖外链） -->
+  <div class="balloons" aria-hidden="true">
+    <!-- 你可以复制增减气球，或改颜色参数 -->
+    <svg class="balloon b1" viewBox="0 0 220 320" style="--rot:-6deg">
+      <defs>
+        <radialGradient id="gPink1" cx="35%" cy="28%" r="70%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+          <stop offset="25%" stop-color="#ffd6e3" stop-opacity="0.85"/>
+          <stop offset="55%" stop-color="#f3a9c2" stop-opacity="0.72"/>
+          <stop offset="100%" stop-color="#c97a94" stop-opacity="0.55"/>
+        </radialGradient>
+        <radialGradient id="hi1" cx="28%" cy="22%" r="35%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="soft1" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="1.2"/>
+        </filter>
+      </defs>
+      <path d="M110,18 C168,18 206,62 206,122 C206,210 156,264 110,264 C64,264 14,210 14,122 C14,62 52,18 110,18 Z"
+            fill="url(#gPink1)"/>
+      <path d="M80,58 C104,38 132,38 152,58 C124,70 108,92 98,112 C90,98 82,82 80,58 Z"
+            fill="url(#hi1)" filter="url(#soft1)"/>
+      <path d="M110,264 C118,270 122,282 110,292 C98,282 102,270 110,264 Z"
+            fill="rgba(201,122,148,.55)"/>
+      <path d="M110,292 C112,304 116,316 120,328" stroke="rgba(201,122,148,.55)" stroke-width="3" fill="none"/>
+    </svg>
 
-<!-- 气球 -->
-<img class="balloon b1" src="https://i.imgur.com/7yUvePI.png">
-<img class="balloon b2" src="https://i.imgur.com/7yUvePI.png">
-<img class="balloon b3" src="https://i.imgur.com/7yUvePI.png">
+    <svg class="balloon b2" viewBox="0 0 220 320" style="--rot:7deg">
+      <defs>
+        <radialGradient id="gSilver" cx="35%" cy="28%" r="75%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.96"/>
+          <stop offset="25%" stop-color="#f4f4f8" stop-opacity="0.88"/>
+          <stop offset="60%" stop-color="#d6d7e2" stop-opacity="0.70"/>
+          <stop offset="100%" stop-color="#9aa0b2" stop-opacity="0.50"/>
+        </radialGradient>
+        <radialGradient id="hi2" cx="30%" cy="22%" r="36%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="soft2" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="1.25"/>
+        </filter>
+      </defs>
+      <path d="M110,18 C170,18 208,64 208,126 C208,214 156,268 110,268 C64,268 12,214 12,126 C12,64 50,18 110,18 Z"
+            fill="url(#gSilver)"/>
+      <path d="M82,60 C106,40 134,40 154,60 C126,72 110,94 100,114 C92,100 84,84 82,60 Z"
+            fill="url(#hi2)" filter="url(#soft2)"/>
+      <path d="M110,268 C118,274 122,286 110,296 C98,286 102,274 110,268 Z"
+            fill="rgba(154,160,178,.55)"/>
+      <path d="M110,296 C112,308 116,320 120,332" stroke="rgba(154,160,178,.55)" stroke-width="3" fill="none"/>
+    </svg>
 
-<!-- 页面 -->
-<div class="page">
+    <svg class="balloon b3" viewBox="0 0 220 320" style="--rot:-2deg">
+      <defs>
+        <radialGradient id="gPink2" cx="35%" cy="28%" r="70%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+          <stop offset="25%" stop-color="#ffe0ea" stop-opacity="0.82"/>
+          <stop offset="60%" stop-color="#f0b1c6" stop-opacity="0.68"/>
+          <stop offset="100%" stop-color="#b66b82" stop-opacity="0.50"/>
+        </radialGradient>
+        <radialGradient id="hi3" cx="28%" cy="22%" r="35%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="soft3" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="1.2"/>
+        </filter>
+      </defs>
+      <path d="M110,24 C166,24 202,66 202,122 C202,206 154,256 110,256 C66,256 18,206 18,122 C18,66 54,24 110,24 Z"
+            fill="url(#gPink2)"/>
+      <path d="M82,62 C104,44 130,44 150,62 C124,72 110,92 100,112 C92,100 84,86 82,62 Z"
+            fill="url(#hi3)" filter="url(#soft3)"/>
+      <path d="M110,256 C118,262 122,274 110,284 C98,274 102,262 110,256 Z"
+            fill="rgba(182,107,130,.55)"/>
+      <path d="M110,284 C112,296 116,308 120,320" stroke="rgba(182,107,130,.55)" stroke-width="3" fill="none"/>
+    </svg>
+  </div>
 
-    <!-- 蛋糕 -->
-    <img class="cake" src="https://i.imgur.com/8Qf8Z5y.png">
+  <div class="stage">
+    <!-- 开场卡片（点击进入祝福页） -->
+    <div class="card clickZone" id="screen1">
+      <div class="topRow">
+        <div class="cakeWrap" id="cake">
+          <!-- 极简蛋糕SVG（不依赖外链） -->
+          <svg width="78" height="78" viewBox="0 0 120 120" aria-hidden="true">
+            <defs>
+              <linearGradient id="cakeG" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+                <stop offset="1" stop-color="#f2d7de" stop-opacity="0.95"/>
+              </linearGradient>
+            </defs>
+            <rect x="22" y="48" width="76" height="44" rx="14" fill="url(#cakeG)" stroke="rgba(232,169,186,.55)"/>
+            <rect x="30" y="38" width="60" height="18" rx="9" fill="rgba(255,255,255,.9)" stroke="rgba(232,169,186,.45)"/>
+            <path d="M38 64 C46 70, 54 58, 62 64 C70 70, 78 58, 86 64" stroke="rgba(232,169,186,.9)" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <rect x="57" y="22" width="6" height="18" rx="3" fill="rgba(180,120,140,.65)"/>
+            <path d="M60 12 C64 18, 56 18, 60 24 C68 20, 66 12, 60 12 Z" fill="rgba(255,170,190,.9)"/>
+          </svg>
+        </div>
+      </div>
 
-    <!-- 照片：替换这里 -->
-    <img class="photo" src="YOUR_PHOTO.jpg" style="animation-delay:1.2s">
+      <div class="tapHint"><span>Tap to continue</span></div>
 
-    <!-- 文本 -->
-    <div class="text">
-        <div class="line" style="animation-delay:2s">
-            Happy Birthday, Yvonne.<br>
-            Wishing you a year filled with joy, clarity, and continued success.
+      <div class="divider"></div>
+
+      <!-- 第二屏内容（同一页内切换，避免多页模板感） -->
+      <div class="content" id="screen2">
+        <div class="photo">
+          <!-- 你的照片文件名：把 YOUR_PHOTO.jpg 上传到仓库根目录 -->
+          <img src="YOUR_PHOTO.jpg" alt="Yvonne" />
         </div>
 
-        <div class="line" style="animation-delay:2.8s; margin-top:12px">
-            祝你生日快乐，<br>
-            愿新的一年里，<br>
-            充满喜悦、从容与持续的收获。
-        </div>
+        <div class="text">
+          <div class="en" id="enOut"></div>
+          <div class="zh" id="zhOut"></div>
 
-        <div class="signature">
-            With warm wishes,<br>
-            <strong>from Isabel</strong>
+          <div class="sig" id="sigOut" style="opacity:0;">
+            With warm wishes,<br><strong>from Isabel</strong>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-</div>
+<script>
+  // ===== 你可以编辑的内容（只改这里）=====
+  const EN_TEXT = "Happy Birthday, Yvonne.\nWishing you a year filled with joy, clarity, and continued success.";
+  const ZH_TEXT = "祝你生日快乐，\n愿新的一年里，\n充满喜悦、从容与持续的收获。";
+  // ======================================
 
+  const screen1 = document.getElementById("screen1");
+  const screen2 = document.getElementById("screen2");
+  const enOut = document.getElementById("enOut");
+  const zhOut = document.getElementById("zhOut");
+  const sigOut = document.getElementById("sigOut");
+
+  let started = false;
+
+  function typeInto(el, text, speed){
+    return new Promise((resolve)=>{
+      el.textContent = "";
+      let i = 0;
+      const tick = () => {
+        el.textContent += text[i] === "\n" ? "\n" : text[i];
+        i++;
+        if (i < text.length) setTimeout(tick, speed);
+        else resolve();
+      };
+      tick();
+    });
+  }
+
+  screen1.addEventListener("click", async () => {
+    if (started) return;
+    started = true;
+
+    // 显示内容区
+    screen2.classList.add("show");
+
+    // 英文逐字（常速）
+    await typeInto(enOut, EN_TEXT, 28);
+
+    // 停顿
+    await new Promise(r => setTimeout(r, 380));
+
+    // 中文逐字（略慢一点更自然）
+    await typeInto(zhOut, ZH_TEXT, 34);
+
+    // 署名淡入（不逐字）
+    sigOut.style.transition = "opacity 800ms ease";
+    sigOut.style.opacity = 1;
+  });
+</script>
 </body>
 </html>
