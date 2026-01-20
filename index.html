@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Happy Birthday</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body {
+        margin: 0;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(180deg, #f6eee8, #f9e9ef);
+        overflow-x: hidden;
+        color: #4a4a4a;
+    }
+    .page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 24px;
+        box-sizing: border-box;
+    }
+    .cake {
+        width: 120px;
+        margin-bottom: 30px;
+        animation: fadeScale 1.2s ease forwards;
+    }
+    .balloon {
+        position: absolute;
+        width: 90px;
+        opacity: 0.35;
+        animation: float 8s ease-in-out infinite;
+    }
+    .balloon.b1 { left: 10%; top: 80%; animation-delay: 0s; }
+    .balloon.b2 { left: 70%; top: 90%; animation-delay: 2s; }
+    .balloon.b3 { left: 40%; top: 85%; animation-delay: 4s; }
+
+    @keyframes float {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-120px); }
+        100% { transform: translateY(0); }
+    }
+    @keyframes fadeScale {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .photo {
+        width: 240px;
+        border-radius: 18px;
+        margin-bottom: 24px;
+        opacity: 0;
+        animation: fadeIn 1s ease forwards;
+        animation-delay: 0.5s;
+    }
+
+    .text {
+        max-width: 320px;
+        text-align: center;
+        font-size: 16px;
+        line-height: 1.7;
+    }
+
+    .line {
+        opacity: 0;
+        animation: fadeIn 0.8s ease forwards;
+    }
+
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+
+    .signature {
+        margin-top: 18px;
+        font-style: italic;
+        opacity: 0;
+        animation: fadeIn 1s ease forwards;
+        animation-delay: 3.5s;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- 气球 -->
+<img class="balloon b1" src="https://i.imgur.com/7yUvePI.png">
+<img class="balloon b2" src="https://i.imgur.com/7yUvePI.png">
+<img class="balloon b3" src="https://i.imgur.com/7yUvePI.png">
+
+<!-- 页面 -->
+<div class="page">
+
+    <!-- 蛋糕 -->
+    <img class="cake" src="https://i.imgur.com/8Qf8Z5y.png">
+
+    <!-- 照片：替换这里 -->
+    <img class="photo" src="YOUR_PHOTO.jpg" style="animation-delay:1.2s">
+
+    <!-- 文本 -->
+    <div class="text">
+        <div class="line" style="animation-delay:2s">
+            Happy Birthday, Yvonne.<br>
+            Wishing you a year filled with joy, clarity, and continued success.
+        </div>
+
+        <div class="line" style="animation-delay:2.8s; margin-top:12px">
+            祝你生日快乐，<br>
+            愿新的一年里，<br>
+            充满喜悦、从容与持续的收获。
+        </div>
+
+        <div class="signature">
+            With warm wishes,<br>
+            <strong>from Isabel</strong>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
