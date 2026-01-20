@@ -1,525 +1,508 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2487.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px 'Helvetica Neue'; color: #393939; -webkit-text-stroke: #393939}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px 'Helvetica Neue'; color: #393939; -webkit-text-stroke: #393939; min-height: 14.0px}
-    span.s1 {font-kerning: none}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Birthday Card</title>
+<style>
+  :root{
+    --bg1:#f7efe6;   /* 米色 */
+    --bg2:#f9e3ea;   /* 浅粉 */
+    --card: rgba(255,255,255,.62);
+    --card2: rgba(255,255,255,.72);
+    --border: rgba(255,255,255,.60);
+    --text:#3f3f3f;
+    --muted:#6b6b6b;
+    --shadow: 0 18px 45px rgba(0,0,0,.10);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 800px at 30% 10%, #ffffff 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg1), var(--bg2));
+    overflow:hidden;
+  }
+
+  /* ====== 页面容器 ====== */
+  .viewport{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:22px 16px;
+  }
+
+  .card{
+    width:min(520px, 92vw);
+    border-radius:24px;
+    background: var(--card);
+    border:1px solid var(--border);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow);
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* 两页切换：用 transform 做滑动切屏 */
+  .pages{
+    width:200%;
+    display:flex;
+    transition: transform 700ms cubic-bezier(.2,.9,.2,1);
+    will-change: transform;
+  }
+  .page{
+    width:50%;
+    padding:18px 18px 16px;
+    min-height: 640px; /* 保证手机上也有空间 */
+    display:flex;
+    flex-direction:column;
+    position:relative;
+  }
+
+  /* ====== Page 1: 开场 ====== */
+  .hero{
+    flex:1;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding-top:10px;
+  }
+
+  .balloonRows{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-items:center;
+    justify-content:center;
+    margin-top:6px;
+    opacity:0;
+    transform: translateY(-8px);
+    animation: fadeDown 950ms ease forwards;
+    animation-delay: 220ms;
+  }
+  @keyframes fadeDown{
+    to{opacity:1; transform: translateY(0);}
+  }
+
+  .balloonRow{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:nowrap;
+  }
+
+  /* 字母气球（SVG）大小随屏幕略缩放 */
+  .letter{
+    width: clamp(44px, 7.6vw, 56px);
+    height: auto;
+    filter: drop-shadow(0 12px 16px rgba(0,0,0,.10));
+    animation: floatY 9.2s ease-in-out infinite;
+    opacity:.98;
+  }
+  .letter:nth-child(1){animation-delay:0s}
+  .letter:nth-child(2){animation-delay:1.0s}
+  .letter:nth-child(3){animation-delay:2.0s}
+  .letter:nth-child(4){animation-delay:3.0s}
+  .letter:nth-child(5){animation-delay:4.0s}
+  .letter:nth-child(6){animation-delay:0.7s}
+  .letter:nth-child(7){animation-delay:1.7s}
+  .letter:nth-child(8){animation-delay:2.7s}
+  .letter:nth-child(9){animation-delay:3.7s}
+  .letter:nth-child(10){animation-delay:4.7s}
+
+  @keyframes floatY{
+    0%{ transform: translateY(0); }
+    50%{ transform: translateY(-22px); }
+    100%{ transform: translateY(0); }
+  }
+
+  /* 蛋糕在中间靠下 */
+  .cakeArea{
+    flex:1;
+    width:100%;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    padding-bottom:18px;
+    position:relative;
+  }
+  .cakeSketch{
+    width:min(260px, 72vw);
+    opacity:0;
+    transform: translateY(10px) scale(.98);
+    animation: cakeIn 900ms ease forwards;
+    animation-delay: 650ms;
+  }
+  @keyframes cakeIn{
+    to{opacity:1; transform: translateY(0) scale(1);}
+  }
+
+  /* Tap 按钮：在所有元素之后出现 */
+  .ctaWrap{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    padding: 0 0 8px;
+  }
+  .cta{
+    appearance:none;
+    border:1px solid rgba(255,255,255,.7);
+    background: rgba(255,255,255,.60);
+    border-radius:999px;
+    padding:10px 16px;
+    font-size:13px;
+    letter-spacing:.2px;
+    color: rgba(63,63,63,.82);
+    cursor:pointer;
+    opacity:0;
+    transform: translateY(6px);
+    animation: ctaIn 700ms ease forwards;
+    animation-delay: 1650ms;
+  }
+  .cta:active{transform: translateY(6px) scale(.98);}
+  @keyframes ctaIn{
+    to{opacity:1; transform: translateY(0);}
+  }
+
+  /* ====== Page 2: 内容 ====== */
+  .content{
+    flex:1;
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+    justify-content:center;
+    padding-top:10px;
+  }
+
+  /* 手机上改为上下布局 */
+  @media (max-width: 520px){
+    .page{ min-height: 640px; }
+    .content{ flex-direction:column; align-items:center; }
+  }
+
+  /* 照片：更小，占地更少，给文字让位 */
+  .photo{
+    width: min(180px, 46vw);
+    border-radius:18px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.80);
+    box-shadow: 0 14px 28px rgba(0,0,0,.08);
+    background: rgba(255,255,255,.50);
+    flex: 0 0 auto;
+  }
+  .photo img{
+    width:100%;
+    height:auto;
+    display:block;
+  }
+
+  .textBox{
+    flex:1 1 auto;
+    width:100%;
+    border-radius:18px;
+    background: var(--card2);
+    border:1px solid var(--border);
+    padding:14px 14px 12px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.06);
+    min-height: 240px;
+  }
+
+  .en{
+    font-size:16px;
+    line-height:1.7;
+    color: var(--text);
+    white-space:pre-wrap;
+    min-height: 3.4em;
+  }
+  .zh{
+    margin-top:10px;
+    font-size:15px;
+    line-height:1.75;
+    color: var(--muted);
+    white-space:pre-wrap;
+    min-height: 4.8em;
+  }
+  .sig{
+    margin-top:12px;
+    font-size:13px;
+    color: rgba(63,63,63,.78);
+  }
+  .sig strong{color: var(--text);}
+
+  /* 打字效果光标（可选，保持克制） */
+  .cursor::after{
+    content:"";
+    display:inline-block;
+    width:8px;
+    height:1.05em;
+    margin-left:4px;
+    background: rgba(63,63,63,.35);
+    transform: translateY(2px);
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink{
+    50%{opacity:0;}
+  }
+
+  /* 进入第二页后再触发内容淡入 */
+  .fadeIn2{
+    opacity:0;
+    transform: translateY(8px);
+    transition: opacity 700ms ease, transform 700ms ease;
+  }
+  .show2 .fadeIn2{
+    opacity:1;
+    transform: translateY(0);
+  }
+
+  /* 小分隔线 */
+  .rule{
+    width:72px;
+    height:2px;
+    border-radius:999px;
+    margin: 8px auto 0;
+    background: linear-gradient(90deg, transparent, rgba(232,169,186,.92), transparent);
+  }
+</style>
 </head>
+
 <body>
-<p class="p1"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
-<p class="p1"><span class="s1">&lt;html lang="zh-CN"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;head&gt;</span></p>
-<p class="p1"><span class="s1">&lt;meta charset="UTF-8" /&gt;</span></p>
-<p class="p1"><span class="s1">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</span></p>
-<p class="p1"><span class="s1">&lt;title&gt;Birthday Card&lt;/title&gt;</span></p>
-<p class="p1"><span class="s1">&lt;style&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>:root{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>--bg1:#f7efe6; <span class="Apple-converted-space">  </span>/* 米色 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>--bg2:#f9e3ea; <span class="Apple-converted-space">  </span>/* 浅粉 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>--card: rgba(255,255,255,.62);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>--card2: rgba(255,255,255,.72);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>--border: rgba(255,255,255,.60);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>--text:#3f3f3f;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>--muted:#6b6b6b;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>--shadow: 0 18px 45px rgba(0,0,0,.10);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>*{box-sizing:border-box}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>body{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>margin:0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>min-height:100vh;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>color:var(--text);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>background:</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>radial-gradient(1200px 800px at 30% 10%, #ffffff 0%, transparent 60%),</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>linear-gradient(180deg, var(--bg1), var(--bg2));</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>overflow:hidden;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* ====== 页面容器 ====== */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.viewport{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>position:relative;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>min-height:100vh;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>display:flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>align-items:center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>justify-content:center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>padding:22px 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.card{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>width:min(520px, 92vw);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>border-radius:24px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>background: var(--card);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>border:1px solid var(--border);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>backdrop-filter: blur(10px);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>box-shadow: var(--shadow);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>overflow:hidden;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>position:relative;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* 两页切换：用 transform 做滑动切屏 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.pages{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>width:200%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>display:flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>transition: transform 700ms cubic-bezier(.2,.9,.2,1);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>will-change: transform;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.page{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>width:50%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>padding:18px 18px 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>min-height: 640px; /* 保证手机上也有空间 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>display:flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>flex-direction:column;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>position:relative;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* ====== Page 1: 开场 ====== */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.hero{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>flex:1;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>position:relative;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>display:flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>flex-direction:column;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>align-items:center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>justify-content:flex-start;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>padding-top:10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.balloonRows{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>width:100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>display:flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>flex-direction:column;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>gap:10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>align-items:center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>justify-content:center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>margin-top:6px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>opacity:0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>transform: translateY(-8px);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>animation: fadeDown 950ms ease forwards;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>animation-delay: 220ms;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>@keyframes fadeDown{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>to{opacity:1; transform: translateY(0);}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.balloonRow{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>display:flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>gap:10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>align-items:center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>justify-content:center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>flex-wrap:nowrap;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* 字母气球（SVG）大小随屏幕略缩放 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.letter{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>width: clamp(44px, 7.6vw, 56px);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>height: auto;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>filter: drop-shadow(0 12px 16px rgba(0,0,0,.10));</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>animation: floatY 9.2s ease-in-out infinite;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>opacity:.98;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.letter:nth-child(1){animation-delay:0s}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.letter:nth-child(2){animation-delay:1.0s}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.letter:nth-child(3){animation-delay:2.0s}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.letter:nth-child(4){animation-delay:3.0s}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.letter:nth-child(5){animation-delay:4.0s}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.letter:nth-child(6){animation-delay:0.7s}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.letter:nth-child(7){animation-delay:1.7s}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.letter:nth-child(8){animation-delay:2.7s}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.letter:nth-child(9){animation-delay:3.7s}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.letter:nth-child(10){animation-delay:4.7s}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>@keyframes floatY{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>0%{ transform: translateY(0); }</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>50%{ transform: translateY(-22px); }</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>100%{ transform: translateY(0); }</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* 蛋糕在中间靠下 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.cakeArea{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>flex:1;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>width:100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>display:flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>align-items:flex-end;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>justify-content:center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>padding-bottom:18px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>position:relative;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.cakeSketch{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>width:min(260px, 72vw);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>opacity:0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>transform: translateY(10px) scale(.98);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>animation: cakeIn 900ms ease forwards;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>animation-delay: 650ms;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>@keyframes cakeIn{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>to{opacity:1; transform: translateY(0) scale(1);}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* Tap 按钮：在所有元素之后出现 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.ctaWrap{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>width:100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>display:flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>justify-content:center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>padding: 0 0 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.cta{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>appearance:none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>border:1px solid rgba(255,255,255,.7);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>background: rgba(255,255,255,.60);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>border-radius:999px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>padding:10px 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>font-size:13px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>letter-spacing:.2px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>color: rgba(63,63,63,.82);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>cursor:pointer;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>opacity:0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>transform: translateY(6px);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>animation: ctaIn 700ms ease forwards;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>animation-delay: 1650ms;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.cta:active{transform: translateY(6px) scale(.98);}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>@keyframes ctaIn{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>to{opacity:1; transform: translateY(0);}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* ====== Page 2: 内容 ====== */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.content{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>flex:1;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>display:flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>gap:16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>align-items:flex-start;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>justify-content:center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>padding-top:10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* 手机上改为上下布局 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>@media (max-width: 520px){</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.page{ min-height: 640px; }</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.content{ flex-direction:column; align-items:center; }</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* 照片：更小，占地更少，给文字让位 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.photo{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>width: min(180px, 46vw);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>border-radius:18px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>overflow:hidden;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>border:1px solid rgba(255,255,255,.80);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>box-shadow: 0 14px 28px rgba(0,0,0,.08);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>background: rgba(255,255,255,.50);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>flex: 0 0 auto;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.photo img{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>width:100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>height:auto;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>display:block;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.textBox{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>flex:1 1 auto;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>width:100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>border-radius:18px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>background: var(--card2);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>border:1px solid var(--border);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>padding:14px 14px 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>box-shadow: 0 10px 24px rgba(0,0,0,.06);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>min-height: 240px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.en{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>font-size:16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>line-height:1.7;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>color: var(--text);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>white-space:pre-wrap;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>min-height: 3.4em;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.zh{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>margin-top:10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>font-size:15px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>line-height:1.75;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>color: var(--muted);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>white-space:pre-wrap;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>min-height: 4.8em;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.sig{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>margin-top:12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>font-size:13px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>color: rgba(63,63,63,.78);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.sig strong{color: var(--text);}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* 打字效果光标（可选，保持克制） */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.cursor::after{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>content:"";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>display:inline-block;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>width:8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>height:1.05em;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>margin-left:4px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>background: rgba(63,63,63,.35);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>transform: translateY(2px);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>animation: blink 1s step-end infinite;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>@keyframes blink{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>50%{opacity:0;}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* 进入第二页后再触发内容淡入 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.fadeIn2{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>opacity:0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>transform: translateY(8px);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>transition: opacity 700ms ease, transform 700ms ease;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.show2 .fadeIn2{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>opacity:1;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>transform: translateY(0);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* 小分隔线 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.rule{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>width:72px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>height:2px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>border-radius:999px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>margin: 8px auto 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>background: linear-gradient(90deg, transparent, rgba(232,169,186,.92), transparent);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1">&lt;/style&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/head&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;body&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div class="viewport"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="card" id="card"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div class="pages" id="pages"&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;!-- ===================== Page 1 ===================== --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;section class="page" aria-label="Intro"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;div class="hero"&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;!-- 两行字母气球：HAPPY / BIRTHDAY --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="balloonRows" aria-hidden="true"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;div class="balloonRow" id="rowHappy"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;div class="balloonRow" id="rowBirthday"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;div class="rule"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;!-- 蛋糕：中间靠下，sketch 风 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="cakeArea" aria-hidden="true"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;!-- 简洁素描感蛋糕（SVG，不依赖外链） --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;svg class="cakeSketch" viewBox="0 0 520 360" role="img" aria-label="Cake illustration"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;defs&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;filter id="paper" x="-20%" y="-20%" width="140%" height="140%"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="noise"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;feColorMatrix type="matrix" values="</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>1 0 0 0 0</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>0 1 0 0 0</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>0 0 1 0 0</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>0 0 0 0.18 0" in="noise" result="noiseAlpha"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;feComposite operator="in" in="noiseAlpha" in2="SourceGraphic" result="grain"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;feBlend mode="multiply" in="SourceGraphic" in2="grain"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;/filter&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;linearGradient id="cream" x1="0" x2="0" y1="0" y2="1"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;stop offset="1" stop-color="#f3d6df" stop-opacity="0.95"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                  </span>&lt;/linearGradient&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/defs&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;!-- plate --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;path d="M120 300 C170 330, 350 330, 400 300 C360 340, 160 340, 120 300 Z"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>fill="rgba(255,255,255,.65)" stroke="rgba(63,63,63,.25)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#paper)"/&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;!-- cake body --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;path d="M165 150 C160 210, 160 260, 165 290 C170 312, 350 312, 355 290 C360 260, 360 210, 355 150</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                         </span>C350 120, 170 120, 165 150 Z"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>fill="url(#cream)" stroke="rgba(63,63,63,.28)" stroke-width="5" stroke-linejoin="round" filter="url(#paper)"/&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;!-- top layer --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;path d="M190 115 C200 85, 320 85, 330 115 C335 130, 185 130, 190 115 Z"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>fill="rgba(255,255,255,.88)" stroke="rgba(63,63,63,.25)" stroke-width="5" stroke-linejoin="round" filter="url(#paper)"/&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;!-- frosting waves --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;path d="M190 180 C210 200, 230 165, 250 185 C270 205, 290 165, 310 185 C330 205, 345 175, 355 188"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>fill="none" stroke="rgba(232,169,186,.95)" stroke-width="10" stroke-linecap="round" filter="url(#paper)"/&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;!-- candle --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;path d="M255 55 L265 55 L270 110 L250 110 Z"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>fill="rgba(180,120,140,.55)" stroke="rgba(63,63,63,.18)" stroke-width="4" filter="url(#paper)"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;path d="M260 28 C275 42, 250 42, 260 62 C288 48, 282 28, 260 28 Z"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                      </span>fill="rgba(255,170,190,.92)" stroke="rgba(63,63,63,.10)" stroke-width="3" filter="url(#paper)"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;/svg&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;!-- 点击按钮：只在第一页出现 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;div class="ctaWrap"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;button class="cta" id="ctaBtn" type="button"&gt;Tap to continue&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;!-- ===================== Page 2 ===================== --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;section class="page" aria-label="Message"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;div class="content fadeIn2"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="photo"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;!-- 你的照片文件名：把照片上传到仓库根目录，并命名为 yvonne.jpg --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;img src="yvonne.jpg" alt="Yvonne" /&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="textBox"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;div class="en cursor" id="enOut"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;div class="zh" id="zhOut"&gt;&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;div class="sig" id="sigOut" style="opacity:0;"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>With warm wishes,&lt;br&gt;&lt;strong&gt;from Isabel&lt;/strong&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;script&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* =========================================================</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">     </span>你只需要改这里的文字（不需要动别的）</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">     </span>========================================================= */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const EN_TEXT = "Happy Birthday, Yvonne.\nWishing you a year filled with joy, clarity, and continued success.";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const ZH_TEXT = "祝你生日快乐，\n愿新的一年里，\n充满喜悦、从容与持续的收获。";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>/* ========================================================= */</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>// 生成字母气球：两行 HAPPY / BIRTHDAY</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const HAPPY = "HAPPY";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const BIRTHDAY = "BIRTHDAY";</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>function letterBalloonSVG(letter, tint){</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// tint: "pink" | "silver"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const isSilver = tint === "silver";</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const gradId = "g_" + Math.random().toString(16).slice(2);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const hiId <span class="Apple-converted-space">  </span>= "h_" + Math.random().toString(16).slice(2);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const softId = "s_" + Math.random().toString(16).slice(2);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const stops = isSilver ? `</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;radialGradient id="${gradId}" cx="35%" cy="28%" r="75%"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;stop offset="0%" stop-color="#ffffff" stop-opacity="0.96"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;stop offset="25%" stop-color="#f4f4f8" stop-opacity="0.88"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;stop offset="60%" stop-color="#d6d7e2" stop-opacity="0.70"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;stop offset="100%" stop-color="#9aa0b2" stop-opacity="0.52"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/radialGradient&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>` : `</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;radialGradient id="${gradId}" cx="35%" cy="28%" r="70%"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;stop offset="0%" stop-color="#ffffff" stop-opacity="0.96"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;stop offset="25%" stop-color="#ffe0ea" stop-opacity="0.84"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;stop offset="60%" stop-color="#f0b1c6" stop-opacity="0.70"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;stop offset="100%" stop-color="#b66b82" stop-opacity="0.52"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/radialGradient&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>`;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const tailFill = isSilver ? "rgba(154,160,178,.55)" : "rgba(182,107,130,.55)";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const tailStroke = isSilver ? "rgba(154,160,178,.55)" : "rgba(182,107,130,.55)";</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>return `</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;svg class="letter" viewBox="0 0 220 320" aria-hidden="true"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;defs&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>${stops}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;radialGradient id="${hiId}" cx="30%" cy="22%" r="36%"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;stop offset="100%" stop-color="#ffffff" stop-opacity="0"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/radialGradient&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;filter id="${softId}" x="-20%" y="-20%" width="140%" height="140%"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;feGaussianBlur stdDeviation="1.25"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/filter&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/defs&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;path d="M110,18 C170,18 208,64 208,126 C208,214 156,268 110,268 C64,268 12,214 12,126 C12,64 50,18 110,18 Z"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>fill="url(#${gradId})"/&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;path d="M82,60 C106,40 134,40 154,60 C126,72 110,94 100,114 C92,100 84,84 82,60 Z"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>fill="url(#${hiId})" filter="url(#${softId})"/&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;!-- 字母 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;text x="110" y="165" text-anchor="middle"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>font-size="92" font-weight="800"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>fill="rgba(255,255,255,.78)"</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>style="letter-spacing:2px"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>${letter}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/text&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;!-- 结与绳 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;path d="M110,268 C118,274 122,286 110,296 C98,286 102,274 110,268 Z" fill="${tailFill}"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;path d="M110,296 C112,308 116,320 120,332" stroke="${tailStroke}" stroke-width="3" fill="none"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/svg&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>`;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>function renderRow(containerId, word){</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const el = document.getElementById(containerId);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const letters = word.split("");</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>el.innerHTML = letters.map((ch, idx) =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>// 交错粉银，贴近 Canva 的感觉</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const tint = (idx % 2 === 0) ? "pink" : "silver";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>return letterBalloonSVG(ch, tint);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}).join("");</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>renderRow("rowHappy", HAPPY);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>renderRow("rowBirthday", BIRTHDAY);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>// ====== 切到第二页 + 打字动画 ======</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const pages = document.getElementById("pages");</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const card = document.getElementById("card");</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const ctaBtn = document.getElementById("ctaBtn");</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const enOut = document.getElementById("enOut");</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const zhOut = document.getElementById("zhOut");</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const sigOut = document.getElementById("sigOut");</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>let started = false;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>function typeInto(el, text, speed){</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>return new Promise((resolve)=&gt;{</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>el.textContent = "";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>let i = 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const tick = () =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>el.textContent += text[i] === "\n" ? "\n" : text[i];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>i++;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>if (i &lt; text.length) setTimeout(tick, speed);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>else resolve();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>};</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>tick();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>});</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>ctaBtn.addEventListener("click", async () =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (started) return;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>started = true;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// 切到第二页（Tap 按钮不会再出现，因为它只在 Page 1）</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>pages.style.transform = "translateX(-50%)";</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// 让第二页内容淡入</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>card.classList.add("show2");</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// 打字：给你预留更多文字空间，所以速度克制，且英文先</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>await typeInto(enOut, EN_TEXT, 26);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>await new Promise(r =&gt; setTimeout(r, 320));</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>await typeInto(zhOut, ZH_TEXT, 30);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// 署名淡入（不逐字）</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>sigOut.style.transition = "opacity 900ms ease";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>sigOut.style.opacity = 1;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// 打完字后去掉光标（可选）</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>enOut.classList.remove("cursor");</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>});</span></p>
-<p class="p1"><span class="s1">&lt;/script&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/body&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
+  <div class="viewport">
+    <div class="card" id="card">
+      <div class="pages" id="pages">
+
+        <!-- ===================== Page 1 ===================== -->
+        <section class="page" aria-label="Intro">
+          <div class="hero">
+
+            <!-- 两行字母气球：HAPPY / BIRTHDAY -->
+            <div class="balloonRows" aria-hidden="true">
+              <div class="balloonRow" id="rowHappy"></div>
+              <div class="balloonRow" id="rowBirthday"></div>
+              <div class="rule"></div>
+            </div>
+
+            <!-- 蛋糕：中间靠下，sketch 风 -->
+            <div class="cakeArea" aria-hidden="true">
+              <!-- 简洁素描感蛋糕（SVG，不依赖外链） -->
+              <svg class="cakeSketch" viewBox="0 0 520 360" role="img" aria-label="Cake illustration">
+                <defs>
+                  <filter id="paper" x="-20%" y="-20%" width="140%" height="140%">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="noise"/>
+                    <feColorMatrix type="matrix" values="
+                      1 0 0 0 0
+                      0 1 0 0 0
+                      0 0 1 0 0
+                      0 0 0 0.18 0" in="noise" result="noiseAlpha"/>
+                    <feComposite operator="in" in="noiseAlpha" in2="SourceGraphic" result="grain"/>
+                    <feBlend mode="multiply" in="SourceGraphic" in2="grain"/>
+                  </filter>
+
+                  <linearGradient id="cream" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+                    <stop offset="1" stop-color="#f3d6df" stop-opacity="0.95"/>
+                  </linearGradient>
+                </defs>
+
+                <!-- plate -->
+                <path d="M120 300 C170 330, 350 330, 400 300 C360 340, 160 340, 120 300 Z"
+                      fill="rgba(255,255,255,.65)" stroke="rgba(63,63,63,.25)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#paper)"/>
+
+                <!-- cake body -->
+                <path d="M165 150 C160 210, 160 260, 165 290 C170 312, 350 312, 355 290 C360 260, 360 210, 355 150
+                         C350 120, 170 120, 165 150 Z"
+                      fill="url(#cream)" stroke="rgba(63,63,63,.28)" stroke-width="5" stroke-linejoin="round" filter="url(#paper)"/>
+
+                <!-- top layer -->
+                <path d="M190 115 C200 85, 320 85, 330 115 C335 130, 185 130, 190 115 Z"
+                      fill="rgba(255,255,255,.88)" stroke="rgba(63,63,63,.25)" stroke-width="5" stroke-linejoin="round" filter="url(#paper)"/>
+
+                <!-- frosting waves -->
+                <path d="M190 180 C210 200, 230 165, 250 185 C270 205, 290 165, 310 185 C330 205, 345 175, 355 188"
+                      fill="none" stroke="rgba(232,169,186,.95)" stroke-width="10" stroke-linecap="round" filter="url(#paper)"/>
+
+                <!-- candle -->
+                <path d="M255 55 L265 55 L270 110 L250 110 Z"
+                      fill="rgba(180,120,140,.55)" stroke="rgba(63,63,63,.18)" stroke-width="4" filter="url(#paper)"/>
+                <path d="M260 28 C275 42, 250 42, 260 62 C288 48, 282 28, 260 28 Z"
+                      fill="rgba(255,170,190,.92)" stroke="rgba(63,63,63,.10)" stroke-width="3" filter="url(#paper)"/>
+              </svg>
+            </div>
+
+          </div>
+
+          <!-- 点击按钮：只在第一页出现 -->
+          <div class="ctaWrap">
+            <button class="cta" id="ctaBtn" type="button">Tap to continue</button>
+          </div>
+        </section>
+
+        <!-- ===================== Page 2 ===================== -->
+        <section class="page" aria-label="Message">
+          <div class="content fadeIn2">
+            <div class="photo">
+              <!-- 你的照片文件名：把照片上传到仓库根目录，并命名为 yvonne.jpg -->
+              <img src="yvonne.jpg" alt="Yvonne" />
+            </div>
+
+            <div class="textBox">
+              <div class="en cursor" id="enOut"></div>
+              <div class="zh" id="zhOut"></div>
+
+              <div class="sig" id="sigOut" style="opacity:0;">
+                With warm wishes,<br><strong>from Isabel</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* =========================================================
+     你只需要改这里的文字（不需要动别的）
+     ========================================================= */
+  const EN_TEXT = "Happy Birthday, Yvonne.\nWishing you a year filled with joy, clarity, and continued success.";
+  const ZH_TEXT = "祝你生日快乐，\n愿新的一年里，\n充满喜悦、从容与持续的收获。";
+  /* ========================================================= */
+
+  // 生成字母气球：两行 HAPPY / BIRTHDAY
+  const HAPPY = "HAPPY";
+  const BIRTHDAY = "BIRTHDAY";
+
+  function letterBalloonSVG(letter, tint){
+    // tint: "pink" | "silver"
+    const isSilver = tint === "silver";
+
+    const gradId = "g_" + Math.random().toString(16).slice(2);
+    const hiId   = "h_" + Math.random().toString(16).slice(2);
+    const softId = "s_" + Math.random().toString(16).slice(2);
+
+    const stops = isSilver ? `
+      <radialGradient id="${gradId}" cx="35%" cy="28%" r="75%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.96"/>
+        <stop offset="25%" stop-color="#f4f4f8" stop-opacity="0.88"/>
+        <stop offset="60%" stop-color="#d6d7e2" stop-opacity="0.70"/>
+        <stop offset="100%" stop-color="#9aa0b2" stop-opacity="0.52"/>
+      </radialGradient>
+    ` : `
+      <radialGradient id="${gradId}" cx="35%" cy="28%" r="70%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.96"/>
+        <stop offset="25%" stop-color="#ffe0ea" stop-opacity="0.84"/>
+        <stop offset="60%" stop-color="#f0b1c6" stop-opacity="0.70"/>
+        <stop offset="100%" stop-color="#b66b82" stop-opacity="0.52"/>
+      </radialGradient>
+    `;
+
+    const tailFill = isSilver ? "rgba(154,160,178,.55)" : "rgba(182,107,130,.55)";
+    const tailStroke = isSilver ? "rgba(154,160,178,.55)" : "rgba(182,107,130,.55)";
+
+    return `
+      <svg class="letter" viewBox="0 0 220 320" aria-hidden="true">
+        <defs>
+          ${stops}
+          <radialGradient id="${hiId}" cx="30%" cy="22%" r="36%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="${softId}" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="1.25"/>
+          </filter>
+        </defs>
+
+        <path d="M110,18 C170,18 208,64 208,126 C208,214 156,268 110,268 C64,268 12,214 12,126 C12,64 50,18 110,18 Z"
+              fill="url(#${gradId})"/>
+
+        <path d="M82,60 C106,40 134,40 154,60 C126,72 110,94 100,114 C92,100 84,84 82,60 Z"
+              fill="url(#${hiId})" filter="url(#${softId})"/>
+
+        <!-- 字母 -->
+        <text x="110" y="165" text-anchor="middle"
+              font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial"
+              font-size="92" font-weight="800"
+              fill="rgba(255,255,255,.78)"
+              style="letter-spacing:2px">
+          ${letter}
+        </text>
+
+        <!-- 结与绳 -->
+        <path d="M110,268 C118,274 122,286 110,296 C98,286 102,274 110,268 Z" fill="${tailFill}"/>
+        <path d="M110,296 C112,308 116,320 120,332" stroke="${tailStroke}" stroke-width="3" fill="none"/>
+      </svg>
+    `;
+  }
+
+  function renderRow(containerId, word){
+    const el = document.getElementById(containerId);
+    const letters = word.split("");
+    el.innerHTML = letters.map((ch, idx) => {
+      // 交错粉银，贴近 Canva 的感觉
+      const tint = (idx % 2 === 0) ? "pink" : "silver";
+      return letterBalloonSVG(ch, tint);
+    }).join("");
+  }
+
+  renderRow("rowHappy", HAPPY);
+  renderRow("rowBirthday", BIRTHDAY);
+
+  // ====== 切到第二页 + 打字动画 ======
+  const pages = document.getElementById("pages");
+  const card = document.getElementById("card");
+  const ctaBtn = document.getElementById("ctaBtn");
+
+  const enOut = document.getElementById("enOut");
+  const zhOut = document.getElementById("zhOut");
+  const sigOut = document.getElementById("sigOut");
+
+  let started = false;
+
+  function typeInto(el, text, speed){
+    return new Promise((resolve)=>{
+      el.textContent = "";
+      let i = 0;
+      const tick = () => {
+        el.textContent += text[i] === "\n" ? "\n" : text[i];
+        i++;
+        if (i < text.length) setTimeout(tick, speed);
+        else resolve();
+      };
+      tick();
+    });
+  }
+
+  ctaBtn.addEventListener("click", async () => {
+    if (started) return;
+    started = true;
+
+    // 切到第二页（Tap 按钮不会再出现，因为它只在 Page 1）
+    pages.style.transform = "translateX(-50%)";
+
+    // 让第二页内容淡入
+    card.classList.add("show2");
+
+    // 打字：给你预留更多文字空间，所以速度克制，且英文先
+    await typeInto(enOut, EN_TEXT, 26);
+    await new Promise(r => setTimeout(r, 320));
+    await typeInto(zhOut, ZH_TEXT, 30);
+
+    // 署名淡入（不逐字）
+    sigOut.style.transition = "opacity 900ms ease";
+    sigOut.style.opacity = 1;
+
+    // 打完字后去掉光标（可选）
+    enOut.classList.remove("cursor");
+  });
+</script>
 </body>
 </html>
