@@ -4,32 +4,70 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Birthday Card</title>
+
 <style>
   :root{
-    --bg1:#f7efe6;   /* 米色 */
-    --bg2:#f9e3ea;   /* 浅粉 */
+    /* 同一色系：第一页浅、第二页仅“柔和”变深 */
+    --bg1a:#f7efe6;   /* page1 顶部浅米 */
+    --bg1b:#fae7ee;   /* page1 底部浅粉米 */
+    --bg2a:#f1e6dc;   /* page2 顶部稍深米 */
+    --bg2b:#f3dbe4;   /* page2 底部稍深粉米 */
+
     --card: rgba(255,255,255,.62);
     --card2: rgba(255,255,255,.72);
-    --border: rgba(255,255,255,.60);
+    --border: rgba(255,255,255,.62);
+
     --text:#3f3f3f;
     --muted:#6b6b6b;
+
     --shadow: 0 18px 45px rgba(0,0,0,.10);
   }
+
   *{box-sizing:border-box}
+
   body{
     margin:0;
     min-height:100vh;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
     color:var(--text);
-    background:
-      radial-gradient(1200px 800px at 30% 10%, #ffffff 0%, transparent 60%),
-      linear-gradient(180deg, var(--bg1), var(--bg2));
     overflow:hidden;
+
+    /* 背景做成可过渡的：用伪元素来做渐变，切页时只换变量 */
+    background: #fff;
   }
 
-  /* ====== 页面容器 ====== */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:0;
+    background:
+      radial-gradient(1200px 800px at 30% 10%, rgba(255,255,255,.95) 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg1a), var(--bg1b));
+    transition: background 900ms ease;
+  }
+
+  body.scene2::before{
+    background:
+      radial-gradient(1200px 800px at 30% 10%, rgba(255,255,255,.90) 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg2a), var(--bg2b));
+  }
+
+  /* 礼花 canvas：在背景之上、卡片之下 */
+  #confettiCanvas{
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events:none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 500ms ease;
+  }
+
   .viewport{
     position:relative;
+    z-index:2;
     min-height:100vh;
     display:flex;
     align-items:center;
@@ -38,7 +76,7 @@
   }
 
   .card{
-    width:min(520px, 92vw);
+    width:min(560px, 92vw);
     border-radius:24px;
     background: var(--card);
     border:1px solid var(--border);
@@ -48,23 +86,28 @@
     position:relative;
   }
 
-  /* 两页切换：用 transform 做滑动切屏 */
+  /* 两页切换：横向滑动 */
   .pages{
     width:200%;
     display:flex;
-    transition: transform 700ms cubic-bezier(.2,.9,.2,1);
+    transition: transform 720ms cubic-bezier(.2,.9,.2,1);
     will-change: transform;
   }
+
   .page{
     width:50%;
     padding:18px 18px 16px;
-    min-height: 640px; /* 保证手机上也有空间 */
+    min-height: 660px;
     display:flex;
     flex-direction:column;
     position:relative;
   }
 
-  /* ====== Page 1: 开场 ====== */
+  @media (max-width: 520px){
+    .page{ min-height: 660px; }
+  }
+
+  /* ===================== Page 1 ===================== */
   .hero{
     flex:1;
     position:relative;
@@ -75,6 +118,7 @@
     padding-top:10px;
   }
 
+  /* 字母气球两行 */
   .balloonRows{
     width:100%;
     display:flex;
@@ -85,7 +129,7 @@
     margin-top:6px;
     opacity:0;
     transform: translateY(-8px);
-    animation: fadeDown 950ms ease forwards;
+    animation: fadeDown 900ms ease forwards;
     animation-delay: 220ms;
   }
   @keyframes fadeDown{
@@ -100,24 +144,26 @@
     flex-wrap:nowrap;
   }
 
-  /* 字母气球（SVG）大小随屏幕略缩放 */
-  .letter{
-    width: clamp(44px, 7.6vw, 56px);
+  /* “字母形状气球”的实现方式：
+     用 SVG <text> 本身形成字母轮廓 + 渐变 + 高光 + 描边 + 阴影，
+     视觉上就是“充气字母”，不是圆气球上写字母。 */
+  .letterBalloon{
+    width: clamp(54px, 8.2vw, 66px);
     height: auto;
-    filter: drop-shadow(0 12px 16px rgba(0,0,0,.10));
-    animation: floatY 9.2s ease-in-out infinite;
+    filter: drop-shadow(0 14px 18px rgba(0,0,0,.10));
+    animation: floatY 9.0s ease-in-out infinite;
     opacity:.98;
   }
-  .letter:nth-child(1){animation-delay:0s}
-  .letter:nth-child(2){animation-delay:1.0s}
-  .letter:nth-child(3){animation-delay:2.0s}
-  .letter:nth-child(4){animation-delay:3.0s}
-  .letter:nth-child(5){animation-delay:4.0s}
-  .letter:nth-child(6){animation-delay:0.7s}
-  .letter:nth-child(7){animation-delay:1.7s}
-  .letter:nth-child(8){animation-delay:2.7s}
-  .letter:nth-child(9){animation-delay:3.7s}
-  .letter:nth-child(10){animation-delay:4.7s}
+  .letterBalloon:nth-child(1){animation-delay:0s}
+  .letterBalloon:nth-child(2){animation-delay:1.0s}
+  .letterBalloon:nth-child(3){animation-delay:2.0s}
+  .letterBalloon:nth-child(4){animation-delay:3.0s}
+  .letterBalloon:nth-child(5){animation-delay:4.0s}
+  .letterBalloon:nth-child(6){animation-delay:0.6s}
+  .letterBalloon:nth-child(7){animation-delay:1.6s}
+  .letterBalloon:nth-child(8){animation-delay:2.6s}
+  .letterBalloon:nth-child(9){animation-delay:3.6s}
+  .letterBalloon:nth-child(10){animation-delay:4.6s}
 
   @keyframes floatY{
     0%{ transform: translateY(0); }
@@ -125,7 +171,15 @@
     100%{ transform: translateY(0); }
   }
 
-  /* 蛋糕在中间靠下 */
+  .rule{
+    width:72px;
+    height:2px;
+    border-radius:999px;
+    margin: 6px auto 0;
+    background: linear-gradient(90deg, transparent, rgba(232,169,186,.92), transparent);
+  }
+
+  /* 蛋糕：中间偏下 */
   .cakeArea{
     flex:1;
     width:100%;
@@ -135,18 +189,19 @@
     padding-bottom:18px;
     position:relative;
   }
+
   .cakeSketch{
     width:min(260px, 72vw);
     opacity:0;
-    transform: translateY(10px) scale(.98);
-    animation: cakeIn 900ms ease forwards;
-    animation-delay: 650ms;
+    transform: translateY(10px) scale(.985);
+    animation: cakeIn 880ms ease forwards;
+    animation-delay: 620ms;
   }
   @keyframes cakeIn{
     to{opacity:1; transform: translateY(0) scale(1);}
   }
 
-  /* Tap 按钮：在所有元素之后出现 */
+  /* Tap 按钮：只在第一页出现，且在字母/蛋糕之后出现 */
   .ctaWrap{
     width:100%;
     display:flex;
@@ -155,8 +210,8 @@
   }
   .cta{
     appearance:none;
-    border:1px solid rgba(255,255,255,.7);
-    background: rgba(255,255,255,.60);
+    border:1px solid rgba(255,255,255,.75);
+    background: rgba(255,255,255,.62);
     border-radius:999px;
     padding:10px 16px;
     font-size:13px;
@@ -173,7 +228,7 @@
     to{opacity:1; transform: translateY(0);}
   }
 
-  /* ====== Page 2: 内容 ====== */
+  /* ===================== Page 2 ===================== */
   .content{
     flex:1;
     display:flex;
@@ -183,18 +238,17 @@
     padding-top:10px;
   }
 
-  /* 手机上改为上下布局 */
+  /* 手机：上下布局，文字空间最大化 */
   @media (max-width: 520px){
-    .page{ min-height: 640px; }
     .content{ flex-direction:column; align-items:center; }
   }
 
-  /* 照片：更小，占地更少，给文字让位 */
+  /* 照片更小，给文字让位 */
   .photo{
-    width: min(180px, 46vw);
+    width: min(165px, 44vw);
     border-radius:18px;
     overflow:hidden;
-    border:1px solid rgba(255,255,255,.80);
+    border:1px solid rgba(255,255,255,.82);
     box-shadow: 0 14px 28px rgba(0,0,0,.08);
     background: rgba(255,255,255,.50);
     flex: 0 0 auto;
@@ -213,7 +267,7 @@
     border:1px solid var(--border);
     padding:14px 14px 12px;
     box-shadow: 0 10px 24px rgba(0,0,0,.06);
-    min-height: 240px;
+    min-height: 300px; /* 留足给你加更多文字 */
   }
 
   .en{
@@ -229,7 +283,7 @@
     line-height:1.75;
     color: var(--muted);
     white-space:pre-wrap;
-    min-height: 4.8em;
+    min-height: 6.2em; /* 中文区更大 */
   }
   .sig{
     margin-top:12px;
@@ -238,44 +292,36 @@
   }
   .sig strong{color: var(--text);}
 
-  /* 打字效果光标（可选，保持克制） */
+  /* 打字光标（克制） */
   .cursor::after{
     content:"";
     display:inline-block;
     width:8px;
     height:1.05em;
     margin-left:4px;
-    background: rgba(63,63,63,.35);
+    background: rgba(63,63,63,.30);
     transform: translateY(2px);
     animation: blink 1s step-end infinite;
   }
-  @keyframes blink{
-    50%{opacity:0;}
-  }
+  @keyframes blink{ 50%{opacity:0;} }
 
-  /* 进入第二页后再触发内容淡入 */
+  /* Page2 进入时淡入 */
   .fadeIn2{
     opacity:0;
     transform: translateY(8px);
     transition: opacity 700ms ease, transform 700ms ease;
   }
-  .show2 .fadeIn2{
+  body.scene2 .fadeIn2{
     opacity:1;
     transform: translateY(0);
-  }
-
-  /* 小分隔线 */
-  .rule{
-    width:72px;
-    height:2px;
-    border-radius:999px;
-    margin: 8px auto 0;
-    background: linear-gradient(90deg, transparent, rgba(232,169,186,.92), transparent);
   }
 </style>
 </head>
 
 <body>
+  <!-- 礼花画布（背景效果） -->
+  <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+
   <div class="viewport">
     <div class="card" id="card">
       <div class="pages" id="pages">
@@ -284,16 +330,15 @@
         <section class="page" aria-label="Intro">
           <div class="hero">
 
-            <!-- 两行字母气球：HAPPY / BIRTHDAY -->
+            <!-- 两行：HAPPY / BIRTHDAY -->
             <div class="balloonRows" aria-hidden="true">
               <div class="balloonRow" id="rowHappy"></div>
               <div class="balloonRow" id="rowBirthday"></div>
               <div class="rule"></div>
             </div>
 
-            <!-- 蛋糕：中间靠下，sketch 风 -->
+            <!-- 蛋糕：中间靠下，sketch -->
             <div class="cakeArea" aria-hidden="true">
-              <!-- 简洁素描感蛋糕（SVG，不依赖外链） -->
               <svg class="cakeSketch" viewBox="0 0 520 360" role="img" aria-label="Cake illustration">
                 <defs>
                   <filter id="paper" x="-20%" y="-20%" width="140%" height="140%">
@@ -313,34 +358,34 @@
                   </linearGradient>
                 </defs>
 
-                <!-- plate -->
                 <path d="M120 300 C170 330, 350 330, 400 300 C360 340, 160 340, 120 300 Z"
-                      fill="rgba(255,255,255,.65)" stroke="rgba(63,63,63,.25)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#paper)"/>
+                      fill="rgba(255,255,255,.65)" stroke="rgba(63,63,63,.25)" stroke-width="4"
+                      stroke-linecap="round" stroke-linejoin="round" filter="url(#paper)"/>
 
-                <!-- cake body -->
                 <path d="M165 150 C160 210, 160 260, 165 290 C170 312, 350 312, 355 290 C360 260, 360 210, 355 150
                          C350 120, 170 120, 165 150 Z"
-                      fill="url(#cream)" stroke="rgba(63,63,63,.28)" stroke-width="5" stroke-linejoin="round" filter="url(#paper)"/>
+                      fill="url(#cream)" stroke="rgba(63,63,63,.28)" stroke-width="5"
+                      stroke-linejoin="round" filter="url(#paper)"/>
 
-                <!-- top layer -->
                 <path d="M190 115 C200 85, 320 85, 330 115 C335 130, 185 130, 190 115 Z"
-                      fill="rgba(255,255,255,.88)" stroke="rgba(63,63,63,.25)" stroke-width="5" stroke-linejoin="round" filter="url(#paper)"/>
+                      fill="rgba(255,255,255,.88)" stroke="rgba(63,63,63,.25)" stroke-width="5"
+                      stroke-linejoin="round" filter="url(#paper)"/>
 
-                <!-- frosting waves -->
                 <path d="M190 180 C210 200, 230 165, 250 185 C270 205, 290 165, 310 185 C330 205, 345 175, 355 188"
-                      fill="none" stroke="rgba(232,169,186,.95)" stroke-width="10" stroke-linecap="round" filter="url(#paper)"/>
+                      fill="none" stroke="rgba(232,169,186,.95)" stroke-width="10" stroke-linecap="round"
+                      filter="url(#paper)"/>
 
-                <!-- candle -->
                 <path d="M255 55 L265 55 L270 110 L250 110 Z"
-                      fill="rgba(180,120,140,.55)" stroke="rgba(63,63,63,.18)" stroke-width="4" filter="url(#paper)"/>
+                      fill="rgba(180,120,140,.55)" stroke="rgba(63,63,63,.18)" stroke-width="4"
+                      filter="url(#paper)"/>
                 <path d="M260 28 C275 42, 250 42, 260 62 C288 48, 282 28, 260 28 Z"
-                      fill="rgba(255,170,190,.92)" stroke="rgba(63,63,63,.10)" stroke-width="3" filter="url(#paper)"/>
+                      fill="rgba(255,170,190,.92)" stroke="rgba(63,63,63,.10)" stroke-width="3"
+                      filter="url(#paper)"/>
               </svg>
             </div>
 
           </div>
 
-          <!-- 点击按钮：只在第一页出现 -->
           <div class="ctaWrap">
             <button class="cta" id="ctaBtn" type="button">Tap to continue</button>
           </div>
@@ -350,7 +395,7 @@
         <section class="page" aria-label="Message">
           <div class="content fadeIn2">
             <div class="photo">
-              <!-- 你的照片文件名：把照片上传到仓库根目录，并命名为 yvonne.jpg -->
+              <!-- 照片文件名：把照片上传到仓库根目录，并命名为 yvonne.jpg -->
               <img src="yvonne.jpg" alt="Yvonne" />
             </div>
 
@@ -377,68 +422,67 @@
   const ZH_TEXT = "祝你生日快乐，\n愿新的一年里，\n充满喜悦、从容与持续的收获。";
   /* ========================================================= */
 
-  // 生成字母气球：两行 HAPPY / BIRTHDAY
+  /* ===================== 字母形状气球（粉银） ===================== */
   const HAPPY = "HAPPY";
   const BIRTHDAY = "BIRTHDAY";
 
-  function letterBalloonSVG(letter, tint){
-    // tint: "pink" | "silver"
+  // 用 SVG <text> 形成字母轮廓：字母本体就是“气球形状”
+  function letterBalloonSVG(ch, tint){
+    const id = Math.random().toString(16).slice(2);
     const isSilver = tint === "silver";
 
-    const gradId = "g_" + Math.random().toString(16).slice(2);
-    const hiId   = "h_" + Math.random().toString(16).slice(2);
-    const softId = "s_" + Math.random().toString(16).slice(2);
+    // 粉/银两套渐变，交错更像你喜欢的模板质感
+    const grad = isSilver
+      ? `
+        <linearGradient id="g${id}" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#ffffff" stop-opacity="0.96"/>
+          <stop offset="25%" stop-color="#f3f4fa" stop-opacity="0.90"/>
+          <stop offset="65%" stop-color="#cfd2de" stop-opacity="0.82"/>
+          <stop offset="100%" stop-color="#9aa0b2" stop-opacity="0.76"/>
+        </linearGradient>`
+      : `
+        <linearGradient id="g${id}" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#ffffff" stop-opacity="0.96"/>
+          <stop offset="25%" stop-color="#ffe0ea" stop-opacity="0.90"/>
+          <stop offset="65%" stop-color="#f0b1c6" stop-opacity="0.84"/>
+          <stop offset="100%" stop-color="#b66b82" stop-opacity="0.76"/>
+        </linearGradient>`;
 
-    const stops = isSilver ? `
-      <radialGradient id="${gradId}" cx="35%" cy="28%" r="75%">
-        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.96"/>
-        <stop offset="25%" stop-color="#f4f4f8" stop-opacity="0.88"/>
-        <stop offset="60%" stop-color="#d6d7e2" stop-opacity="0.70"/>
-        <stop offset="100%" stop-color="#9aa0b2" stop-opacity="0.52"/>
-      </radialGradient>
-    ` : `
-      <radialGradient id="${gradId}" cx="35%" cy="28%" r="70%">
-        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.96"/>
-        <stop offset="25%" stop-color="#ffe0ea" stop-opacity="0.84"/>
-        <stop offset="60%" stop-color="#f0b1c6" stop-opacity="0.70"/>
-        <stop offset="100%" stop-color="#b66b82" stop-opacity="0.52"/>
-      </radialGradient>
-    `;
-
-    const tailFill = isSilver ? "rgba(154,160,178,.55)" : "rgba(182,107,130,.55)";
-    const tailStroke = isSilver ? "rgba(154,160,178,.55)" : "rgba(182,107,130,.55)";
-
+    // 高光：叠一层更亮的字母并裁切到上半部
     return `
-      <svg class="letter" viewBox="0 0 220 320" aria-hidden="true">
+      <svg class="letterBalloon" viewBox="0 0 120 140" aria-hidden="true">
         <defs>
-          ${stops}
-          <radialGradient id="${hiId}" cx="30%" cy="22%" r="36%">
-            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
-            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-          </radialGradient>
-          <filter id="${softId}" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="1.25"/>
+          ${grad}
+          <filter id="s${id}" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="0.7" result="b"/>
+            <feMerge>
+              <feMergeNode in="b"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
           </filter>
+          <clipPath id="clip${id}">
+            <rect x="0" y="0" width="120" height="70" rx="0" ry="0"></rect>
+          </clipPath>
         </defs>
 
-        <path d="M110,18 C170,18 208,64 208,126 C208,214 156,268 110,268 C64,268 12,214 12,126 C12,64 50,18 110,18 Z"
-              fill="url(#${gradId})"/>
+        <!-- 主体字母（气球本体） -->
+        <text x="60" y="108" text-anchor="middle"
+              font-family="Arial Black, Helvetica, Arial, sans-serif"
+              font-size="92" font-weight="900"
+              fill="url(#g${id})"
+              stroke="rgba(255,255,255,.55)" stroke-width="4"
+              filter="url(#s${id})">${ch}</text>
 
-        <path d="M82,60 C106,40 134,40 154,60 C126,72 110,94 100,114 C92,100 84,84 82,60 Z"
-              fill="url(#${hiId})" filter="url(#${softId})"/>
+        <!-- 高光（上半部） -->
+        <text x="60" y="108" text-anchor="middle"
+              font-family="Arial Black, Helvetica, Arial, sans-serif"
+              font-size="92" font-weight="900"
+              fill="rgba(255,255,255,.28)"
+              stroke="rgba(255,255,255,.0)" stroke-width="0"
+              clip-path="url(#clip${id})">${ch}</text>
 
-        <!-- 字母 -->
-        <text x="110" y="165" text-anchor="middle"
-              font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial"
-              font-size="92" font-weight="800"
-              fill="rgba(255,255,255,.78)"
-              style="letter-spacing:2px">
-          ${letter}
-        </text>
-
-        <!-- 结与绳 -->
-        <path d="M110,268 C118,274 122,286 110,296 C98,286 102,274 110,268 Z" fill="${tailFill}"/>
-        <path d="M110,296 C112,308 116,320 120,332" stroke="${tailStroke}" stroke-width="3" fill="none"/>
+        <!-- 轻微“封口”点（让它更像充气物） -->
+        <circle cx="78" cy="124" r="3.2" fill="rgba(255,255,255,.35)"/>
       </svg>
     `;
   }
@@ -447,7 +491,6 @@
     const el = document.getElementById(containerId);
     const letters = word.split("");
     el.innerHTML = letters.map((ch, idx) => {
-      // 交错粉银，贴近 Canva 的感觉
       const tint = (idx % 2 === 0) ? "pink" : "silver";
       return letterBalloonSVG(ch, tint);
     }).join("");
@@ -456,11 +499,142 @@
   renderRow("rowHappy", HAPPY);
   renderRow("rowBirthday", BIRTHDAY);
 
-  // ====== 切到第二页 + 打字动画 ======
-  const pages = document.getElementById("pages");
-  const card = document.getElementById("card");
-  const ctaBtn = document.getElementById("ctaBtn");
+  /* ===================== Confetti：点击爆炸 + 第二页柔和下落 ===================== */
+  (function(){
+    const canvas = document.getElementById("confettiCanvas");
+    const ctx = canvas.getContext("2d", { alpha: true });
 
+    let W=0, H=0, particles=[], running=false, rainMode=false, lastSpawn=0;
+
+    function resize(){
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      W = Math.floor(window.innerWidth);
+      H = Math.floor(window.innerHeight);
+      canvas.width = Math.floor(W * dpr);
+      canvas.height = Math.floor(H * dpr);
+      canvas.style.width = W + "px";
+      canvas.style.height = H + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener("resize", resize, { passive:true });
+    resize();
+
+    function rand(a,b){ return Math.random()*(b-a)+a; }
+    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    // 同色系：金/粉/银 + 极少红点睛（柔和）
+    const COLORS = ["#ffd37a", "#f6c85f", "#f7c6d6", "#f2b7c8", "#e8e8ee", "#ffffff", "#d86a76"];
+
+    function spawnOne(x,y,burst){
+      const size = burst ? rand(6, 12) : rand(5, 10);
+      const tilt = rand(-1.2, 1.2);
+      const shape = Math.random() < 0.78 ? "rect" : "tri";
+
+      // 红色降低概率，避免乱
+      let c = pick(COLORS);
+      if (c === "#d86a76" && Math.random() < 0.75) c = pick(COLORS.slice(0,6));
+
+      let vx, vy;
+      if (burst){
+        const angle = rand(-Math.PI, 0);
+        const speed = rand(6, 14);
+        vx = Math.cos(angle)*speed + rand(-1.5, 1.5);
+        vy = Math.sin(angle)*speed + rand(-1.0, 1.0);
+      } else {
+        vx = rand(-0.55, 0.55);
+        vy = rand(1.15, 2.35);
+      }
+
+      particles.push({
+        x,y, vx,vy, size,
+        rot: rand(0, Math.PI*2),
+        vr: rand(-0.12, 0.12),
+        tilt,
+        color: c,
+        shape,
+        life: burst ? rand(70, 110) : rand(240, 380),
+        age: 0,
+        alpha: burst ? rand(0.85, 1.0) : rand(0.22, 0.34) // 第二页更明显一点但依旧柔和
+      });
+    }
+
+    function burst(x,y,count){
+      for (let i=0;i<count;i++) spawnOne(x,y,true);
+    }
+
+    function start(){
+      if (running) return;
+      running = true;
+      canvas.style.opacity = 1;
+      requestAnimationFrame(step);
+    }
+
+    function enableRain(){ rainMode = true; }
+    function setCanvasOpacity(v){ canvas.style.opacity = v; }
+
+    function draw(p){
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.alpha * (1 - p.age / p.life));
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+
+      if (p.shape === "rect"){
+        ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.68);
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(-p.size/2, p.size/2);
+        ctx.lineTo(0, -p.size/2);
+        ctx.lineTo(p.size/2, p.size/2);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function step(ts){
+      if (!running) return;
+
+      ctx.clearRect(0,0,W,H);
+
+      // 第二页：柔和下落（密度不高）
+      if (rainMode){
+        if (!lastSpawn) lastSpawn = ts;
+        const dt = ts - lastSpawn;
+        if (dt > 105){ // 数值越大越稀疏（保持克制）
+          lastSpawn = ts;
+          const n = Math.random() < 0.65 ? 1 : 2;
+          for (let i=0;i<n;i++){
+            spawnOne(rand(0,W), rand(-30,-10), false);
+          }
+        }
+      }
+
+      const gravity = rainMode ? 0.016 : 0.085;
+      const drag    = rainMode ? 0.998 : 0.992;
+
+      particles = particles.filter(p=>{
+        p.age += 1;
+        p.vy += gravity * p.size * 0.08;
+        p.vx *= drag; p.vy *= drag;
+        p.x += p.vx; p.y += p.vy;
+        p.rot += p.vr;
+
+        p.x += Math.sin((p.age + p.size) * 0.06) * p.tilt * 0.8;
+
+        draw(p);
+        return (p.age < p.life) && (p.y < H + 50);
+      });
+
+      requestAnimationFrame(step);
+    }
+
+    window.__confetti = { start, burst, enableRain, setCanvasOpacity };
+  })();
+
+  /* ===================== 切页 + 打字 ===================== */
+  const pages = document.getElementById("pages");
+  const ctaBtn = document.getElementById("ctaBtn");
   const enOut = document.getElementById("enOut");
   const zhOut = document.getElementById("zhOut");
   const sigOut = document.getElementById("sigOut");
@@ -472,7 +646,7 @@
       el.textContent = "";
       let i = 0;
       const tick = () => {
-        el.textContent += text[i] === "\n" ? "\n" : text[i];
+        el.textContent += (text[i] === "\n") ? "\n" : text[i];
         i++;
         if (i < text.length) setTimeout(tick, speed);
         else resolve();
@@ -485,13 +659,18 @@
     if (started) return;
     started = true;
 
-    // 切到第二页（Tap 按钮不会再出现，因为它只在 Page 1）
+    // 1) 点击瞬间：礼花炸开（与散落纸花呼应）
+    window.__confetti.start();
+    window.__confetti.burst(window.innerWidth * 0.5, window.innerHeight * 0.28, 150);
+
+    // 2) 平滑切到第二页，并把背景“柔和”压暗
+    document.body.classList.add("scene2");
     pages.style.transform = "translateX(-50%)";
 
-    // 让第二页内容淡入
-    card.classList.add("show2");
+    // 3) 第二页：开始柔和下落（在文字层下面）
+    window.__confetti.enableRain();
 
-    // 打字：给你预留更多文字空间，所以速度克制，且英文先
+    // 4) 打字：你可以写更多，所以节奏克制
     await typeInto(enOut, EN_TEXT, 26);
     await new Promise(r => setTimeout(r, 320));
     await typeInto(zhOut, ZH_TEXT, 30);
@@ -502,7 +681,29 @@
 
     // 打完字后去掉光标（可选）
     enOut.classList.remove("cursor");
+
+    /* ===== 如果你要加BGM：把下面这一行取消注释即可（见下方说明） ===== */
+    // tryPlayBgm();
   });
+
+  /* ===================== BGM：可选（见下方说明） ===================== */
+  function tryPlayBgm(){
+    const audio = document.getElementById("bgm");
+    if (!audio) return;
+    audio.volume = 0.55;
+    const p = audio.play();
+    if (p && typeof p.catch === "function") p.catch(()=>{});
+  }
 </script>
+
+<!-- ===================== BGM（可选）：默认不启用 ===================== -->
+<!--
+  说明：
+  1) 把你的音乐文件上传到仓库根目录，例如 bgm.mp3
+  2) 取消注释下面这段 <audio>（去掉 <!-- 和 -->）
+  3) 在上面的 click 事件里把 tryPlayBgm() 那行取消注释
+-->
+<!-- <audio id="bgm" src="bgm.mp3" loop preload="auto"></audio> -->
+
 </body>
 </html>
